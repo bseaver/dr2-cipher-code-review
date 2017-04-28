@@ -24,6 +24,7 @@
   * Iteratively create a cipher custom module in sites/all/modules/custom
   * Since time allows, extend features beyond the `Key Functional Requirements`:
     * Support decryption
+    * Support defaulting of random direction
 
 ### Installation Notes From GitHub:
   * git clone this repo on your desktop

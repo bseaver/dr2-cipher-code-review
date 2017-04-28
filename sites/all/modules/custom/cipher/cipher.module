@@ -63,13 +63,19 @@ function cipher_form() {
         '#element_validate' => array('element_validate_number', 'validate_shift_number'),
         '#required' => TRUE,
     );
+
     $form['direction'] = array(
         '#title' => 'Direction',
         '#type' => 'textfield',
         '#description' => t('Enter "left" or "right" for direction of character shift.'),
         '#element_validate' => array('validate_direction'),
+        '#default_value' => '',
         '#required' => TRUE,
     );
+    if (!$form['direction']['#default_value']) {
+        $form['direction']['#default_value'] = directions()[mt_rand(0, 1)];
+    }
+
     $form['phrase'] = array(
         '#title' => 'Phrase / Cipher',
         '#type' => 'textfield',
