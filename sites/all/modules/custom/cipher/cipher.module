@@ -35,6 +35,10 @@ function letters() {
     return 'abcdefghijklmnopqrstuvwxyz';
 }
 
+function max_shift() {
+    return strlen(letters()) - 1;
+}
+
 function punctuation() {
     // From https://en.wikipedia.org/wiki/Punctuation
     return '\'[](){}<>:,-.!?";/';
@@ -55,7 +59,7 @@ function cipher_form() {
     $form['shift'] = array(
         '#title' => 'Shift',
         '#type' => 'textfield',
-        '#description' => t('Enter a number between 1 and 26 for number of character positions to shift.'),
+        '#description' => t('Enter a number between 1 and ' . max_shift() . ' for number of character positions to shift.'),
         '#element_validate' => array('element_validate_number', 'validate_shift_number'),
         '#required' => TRUE,
     );
@@ -83,7 +87,7 @@ function cipher_form() {
 
 function validate_shift_number($element) {
     $min = 1;
-    $max = strlen(letters());
+    $max = max_shift();
     if ($element['#value'] > $max || $element['#value'] < $min) {
         form_error($element, t($element['#title']. ' must be between '. $min . ' and ' . $max . '.'));
     }
@@ -116,7 +120,7 @@ function cipher_form_submit($form, &$form_state) {
     $direction = $form_state['values']['direction'];
     $phrase = $form_state['values']['phrase'];
     $phrase = $phrase;
-    $cipher = strtolower($phrase);
+    $cipher = generate_caesar_cipher($shift, $direction, $phrase);
     $_SESSION[CIPHER_MODULE_SESSION_SPACE]['shift'] = $shift;
     $_SESSION[CIPHER_MODULE_SESSION_SPACE]['direction'] = $direction;
     $_SESSION[CIPHER_MODULE_SESSION_SPACE]['phrase'] = $phrase;
@@ -153,5 +157,29 @@ function cipher_success() {
         </tr>
     </table>
 EOD;
+    return $output;
+}
+
+function generate_caesar_cipher($shift, $direction, $phrase) {
+    $output = '';
+    if ($direction === 'left') {
+        $shift = -$shift;
+    }
+    $phrase = strtolower($phrase);
+    $phrase_arr = str_split($phrase);
+    $phrase_length = count($phrase_arr);
+    $letters_arr = str_split(strtolower(letters()));
+    $letters_length = count($letters_arr);
+    $character_map = array_merge($letters_arr, $letters_arr, $letters_arr);
+
+    for ($i=0; $i < $phrase_length; $i++) {
+        $next_character = $phrase_arr[$i];
+        $found = array_search($next_character, $letters_arr, TRUE);
+        if ($found !== FALSE) {
+            $next_character = $character_map[$letters_length + $found + $shift];
+        }
+        $output .= $next_character;
+    }
+
     return $output;
 }
