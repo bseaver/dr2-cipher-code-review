@@ -40,6 +40,10 @@ function punctuation() {
     return '\'[](){}<>:-.!?";/';
 }
 
+function directions() {
+    return array('left', 'right');
+}
+
 /**
  * Implements hook_form().
  */
@@ -55,6 +59,7 @@ function cipher_form() {
         '#title' => 'Direction',
         '#type' => 'textfield',
         '#description' => t('Enter "left" or "right" for direction of character shift.'),
+        '#element_validate' => array('validate_direction'),
         '#required' => TRUE,
     );
     $form['phrase'] = array(
@@ -76,5 +81,12 @@ function validate_shift_number($element) {
     $max = strlen(letters());
     if ($element['#value'] > $max || $element['#value'] < $min) {
          form_error($element, t($element['#title']. ' must be between '. $min . ' and ' . $max . '.'));
+     }
+}
+
+function validate_direction($element) {
+    $directions = directions();
+    if (!in_array($element['#value'], $directions)) {
+         form_error($element, t($element['#title']. ' must be either "' . join('" or "', $directions) . '".'));
      }
 }
