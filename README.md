@@ -22,7 +22,8 @@
   * Follow steps (see below) to create a new Drupal project on a Mac
   * Create an About page explaining about the cipher and how to use it
   * Iteratively create a cipher custom module in sites/all/modules/custom
-  * If time allows extend features beyond the `Key Functional Requirements`
+  * Since time allows, extend features beyond the `Key Functional Requirements`:
+    * Support decryption
 
 ### Installation Notes From GitHub:
   * git clone this repo on your desktop

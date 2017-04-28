@@ -71,15 +71,20 @@ function cipher_form() {
         '#required' => TRUE,
     );
     $form['phrase'] = array(
-        '#title' => 'Phrase',
+        '#title' => 'Phrase / Cipher',
         '#type' => 'textfield',
-        '#description' => t('Enter phrase to encrypt with only letters spaces and punctuation: ' . punctuation()),
+        '#description' => t('Enter phrase (or cipher) to encrypt (or decrypt) with only letters spaces and punctuation: ' . punctuation()),
         '#element_validate' => array('validate_phrase'),
         '#required' => TRUE,
     );
+    $form['decrypt'] = array(
+        '#title' => 'Decrypt',
+        '#type' => 'checkbox',
+        '#description' => 'Check if the phrase should be decrypted.',
+    );
     $form['submit'] = array(
         '#type' => 'submit',
-        '#value' => 'Generate Caesar Cipher',
+        '#value' => 'Perform Caesar Cipher',
     );
 
     return $form;
@@ -119,12 +124,14 @@ function cipher_form_submit($form, &$form_state) {
     $shift = $form_state['values']['shift'];
     $direction = $form_state['values']['direction'];
     $phrase = $form_state['values']['phrase'];
+    $decrypt = $form_state['values']['decrypt'];
     $phrase = $phrase;
-    $cipher = generate_caesar_cipher($shift, $direction, $phrase);
+    $cipher = generate_caesar_cipher($shift, $direction, $phrase, $decrypt);
     $_SESSION[CIPHER_MODULE_SESSION_SPACE]['shift'] = $shift;
     $_SESSION[CIPHER_MODULE_SESSION_SPACE]['direction'] = $direction;
     $_SESSION[CIPHER_MODULE_SESSION_SPACE]['phrase'] = $phrase;
     $_SESSION[CIPHER_MODULE_SESSION_SPACE]['cipher'] = $cipher;
+    $_SESSION[CIPHER_MODULE_SESSION_SPACE]['decrypt'] = $decrypt;
     $form_state['redirect'] = 'cipher_results';
 }
 
@@ -133,6 +140,9 @@ function cipher_success() {
     $direction = $_SESSION[CIPHER_MODULE_SESSION_SPACE]['direction'];
     $phrase = $_SESSION[CIPHER_MODULE_SESSION_SPACE]['phrase'];
     $cipher = $_SESSION[CIPHER_MODULE_SESSION_SPACE]['cipher'];
+    $decrypt = $_SESSION[CIPHER_MODULE_SESSION_SPACE]['decrypt'];
+    $phrase_label = ($decrypt?'Cipher':'Phrase');
+    $cipher_label = ($decrypt?'Phrase':'Cipher');
     $output = <<<EOD
     <table>
         <tr>
@@ -144,15 +154,15 @@ function cipher_success() {
             <td>$direction</td>
         </tr>
         <tr>
-            <th>Phrase:</th>
+            <th>$phrase_label:</th>
             <td>$phrase</td>
         </tr>
         <tr>
-            <th>Cipher:</th>
+            <th>$cipher_label:</th>
             <td>$cipher</td>
         </tr>
         <tr>
-            <td><a href="cipher">Encrypt Another Phrase</a></td>
+            <td><a href="cipher">Encrypt / Decrypt Another Phrase</a></td>
             <td></td>
         </tr>
     </table>
@@ -160,9 +170,12 @@ EOD;
     return $output;
 }
 
-function generate_caesar_cipher($shift, $direction, $phrase) {
+function generate_caesar_cipher($shift, $direction, $phrase, $decrypt) {
     $output = '';
     if ($direction === 'left') {
+        $shift = -$shift;
+    }
+    if ($decrypt) {
         $shift = -$shift;
     }
     $phrase = strtolower($phrase);
