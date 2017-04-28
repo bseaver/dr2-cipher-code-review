@@ -48,7 +48,7 @@ function cipher_form() {
         '#title' => 'Shift',
         '#type' => 'textfield',
         '#description' => t('Enter a number between 1 and 26 for number of character positions to shift.'),
-        '#element_validate' => array('element_validate_number'),
+        '#element_validate' => array('element_validate_number', 'validate_shift_number'),
         '#required' => TRUE,
     );
     $form['direction'] = array(
@@ -69,4 +69,12 @@ function cipher_form() {
     );
 
     return $form;
+}
+
+function validate_shift_number($element) {
+    $min = 1;
+    $max = strlen(letters());
+    if ($element['#value'] > $max || $element['#value'] < $min) {
+         form_error($element, t($element['#title']. ' must be between '. $min . ' and ' . $max . '.'));
+     }
 }
