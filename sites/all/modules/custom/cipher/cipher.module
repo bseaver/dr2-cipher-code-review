@@ -1,0 +1,72 @@
+<?php
+/**
+ * @file
+ * Implement a form using this Custom Module to perform
+ * the "Caesar" Shift Cipher
+ */
+
+/**
+ * Define our name space in $_SESSION
+ */
+define('CIPHER_MODULE_SESSION_SPACE', 'cipher_module_session');
+
+/**
+ * Implements hook_menu()
+ */
+function cipher_menu() {
+    $items['cipher'] = array(
+        'title' => 'Caesar Cipher',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('cipher_form'),
+        'access callback' => TRUE,
+        'type' => MENU_NORMAL_ITEM,
+    );
+
+    $items['cipher_results'] = array(
+        'title' => 'Caesar Cipher Results',
+        'page callback' => 'cipher_success',
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+    );
+    return $items;
+}
+
+function letters() {
+    return 'abcdefghijklmnopqrstuvwxyz';
+}
+
+function punctuation() {
+    // From https://en.wikipedia.org/wiki/Punctuation
+    return '\'[](){}<>:-.!?";/';
+}
+
+/**
+ * Implements hook_form().
+ */
+function cipher_form() {
+    $form['left_number'] = array(
+        '#title' => 'Shift',
+        '#type' => 'textfield',
+        '#description' => t('Enter a number between 1 and 26 for number of character positions to shift.'),
+        '#element_validate' => array('element_validate_number'),
+        '#required' => TRUE,
+    );
+    $form['direction'] = array(
+        '#title' => 'Direction',
+        '#type' => 'textfield',
+        '#description' => t('Enter "left" or "right" for direction of character shift.'),
+        '#required' => TRUE,
+    );
+    $form['phrase'] = array(
+        '#title' => 'Phrase',
+        '#type' => 'textfield',
+        '#description' => t('Enter phrase to encrypt with only letters spaces and punctuation: ' . punctuation()),
+        '#required' => TRUE,
+    );
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Generate Caesar Cipher',
+    );
+
+    return $form;
+}

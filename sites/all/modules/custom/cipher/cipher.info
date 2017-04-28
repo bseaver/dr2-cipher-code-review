@@ -1,0 +1,5 @@
+name = Cipher
+description = A Form to generate a Caesar cipher
+package = Epicodus Code Review
+core = 7.x
+files[] = cipher.module
