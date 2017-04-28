@@ -37,7 +37,7 @@ function letters() {
 
 function punctuation() {
     // From https://en.wikipedia.org/wiki/Punctuation
-    return '\'[](){}<>:-.!?";/';
+    return '\'[](){}<>:,-.!?";/';
 }
 
 function space() {
