@@ -52,7 +52,7 @@ function directions() {
  * Implements hook_form().
  */
 function cipher_form() {
-    $form['left_number'] = array(
+    $form['shift'] = array(
         '#title' => 'Shift',
         '#type' => 'textfield',
         '#description' => t('Enter a number between 1 and 26 for number of character positions to shift.'),
@@ -85,14 +85,14 @@ function validate_shift_number($element) {
     $min = 1;
     $max = strlen(letters());
     if ($element['#value'] > $max || $element['#value'] < $min) {
-         form_error($element, t($element['#title']. ' must be between '. $min . ' and ' . $max . '.'));
+        form_error($element, t($element['#title']. ' must be between '. $min . ' and ' . $max . '.'));
     }
 }
 
 function validate_direction($element) {
     $directions = directions();
     if (!in_array($element['#value'], $directions)) {
-         form_error($element, t($element['#title']. ' must be either "' . join('" or "', $directions) . '".'));
+        form_error($element, t($element['#title']. ' must be either "' . join('" or "', $directions) . '".'));
     }
 }
 
@@ -104,6 +104,54 @@ function validate_phrase($element) {
     $allowable_letters_in_phrase = array_intersect($phrase_arr, $allowables_arr);
 
     if (count($phrase_arr) !== count($allowable_letters_in_phrase)) {
-         form_error($element, t($element['#title']. ' must may contain only letters, spaces and punctuation: ' . punctuation() . ' .'));
+        form_error($element, t($element['#title']. ' must may contain only letters, spaces and punctuation: ' . punctuation() . ' .'));
     }
+}
+
+/**
+ * Implements hook_form_submit().
+ */
+function cipher_form_submit($form, &$form_state) {
+    $shift = $form_state['values']['shift'];
+    $direction = $form_state['values']['direction'];
+    $phrase = $form_state['values']['phrase'];
+    $phrase = $phrase;
+    $cipher = strtolower($phrase);
+    $_SESSION[CIPHER_MODULE_SESSION_SPACE]['shift'] = $shift;
+    $_SESSION[CIPHER_MODULE_SESSION_SPACE]['direction'] = $direction;
+    $_SESSION[CIPHER_MODULE_SESSION_SPACE]['phrase'] = $phrase;
+    $_SESSION[CIPHER_MODULE_SESSION_SPACE]['cipher'] = $cipher;
+    $form_state['redirect'] = 'cipher_results';
+}
+
+function cipher_success() {
+    $shift = $_SESSION[CIPHER_MODULE_SESSION_SPACE]['shift'];
+    $direction = $_SESSION[CIPHER_MODULE_SESSION_SPACE]['direction'];
+    $phrase = $_SESSION[CIPHER_MODULE_SESSION_SPACE]['phrase'];
+    $cipher = $_SESSION[CIPHER_MODULE_SESSION_SPACE]['cipher'];
+    $output = <<<EOD
+    <table>
+        <tr>
+            <th>Shift:</th>
+            <td>$shift</td>
+        </tr>
+        <tr>
+            <th>Direction:</th>
+            <td>$direction</td>
+        </tr>
+        <tr>
+            <th>Phrase:</th>
+            <td>$phrase</td>
+        </tr>
+        <tr>
+            <th>Cipher:</th>
+            <td>$cipher</td>
+        </tr>
+        <tr>
+            <td><a href="cipher">Encrypt Another Phrase</a></td>
+            <td></td>
+        </tr>
+    </table>
+EOD;
+    return $output;
 }
