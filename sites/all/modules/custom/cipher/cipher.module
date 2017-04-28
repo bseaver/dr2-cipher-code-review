@@ -40,6 +40,10 @@ function punctuation() {
     return '\'[](){}<>:-.!?";/';
 }
 
+function space() {
+    return ' ';
+}
+
 function directions() {
     return array('left', 'right');
 }
@@ -66,6 +70,7 @@ function cipher_form() {
         '#title' => 'Phrase',
         '#type' => 'textfield',
         '#description' => t('Enter phrase to encrypt with only letters spaces and punctuation: ' . punctuation()),
+        '#element_validate' => array('validate_phrase'),
         '#required' => TRUE,
     );
     $form['submit'] = array(
@@ -81,12 +86,24 @@ function validate_shift_number($element) {
     $max = strlen(letters());
     if ($element['#value'] > $max || $element['#value'] < $min) {
          form_error($element, t($element['#title']. ' must be between '. $min . ' and ' . $max . '.'));
-     }
+    }
 }
 
 function validate_direction($element) {
     $directions = directions();
     if (!in_array($element['#value'], $directions)) {
          form_error($element, t($element['#title']. ' must be either "' . join('" or "', $directions) . '".'));
-     }
+    }
+}
+
+function validate_phrase($element) {
+    $phrase = strtolower($element['#value']);
+    $phrase_arr = str_split($phrase);
+    $allowables = letters() . punctuation() . space();
+    $allowables_arr = str_split($allowables);
+    $allowable_letters_in_phrase = array_intersect($phrase_arr, $allowables_arr);
+
+    if (count($phrase_arr) !== count($allowable_letters_in_phrase)) {
+         form_error($element, t($element['#title']. ' must may contain only letters, spaces and punctuation: ' . punctuation() . ' .'));
+    }
 }
