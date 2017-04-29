@@ -15,7 +15,7 @@ define('CIPHER_MODULE_SESSION_SPACE', 'cipher_module_session');
  */
 function cipher_menu() {
     $items['cipher'] = array(
-        'title' => 'Caesar Cipher',
+        'title' => 'Perform Caesar Cipher',
         'page callback' => 'drupal_get_form',
         'page arguments' => array('cipher_form'),
         'access callback' => TRUE,
@@ -38,7 +38,7 @@ function cipher_menu() {
     );
 
     $items['brute_force_results'] = array(
-        'title' => 'Caesar Cipher Results',
+        'title' => 'Caesar Brute Force Decryption',
         'page callback' => 'brute_force_results',
         'access callback' => TRUE,
         'type' => MENU_CALLBACK,
@@ -308,7 +308,7 @@ function generate_caesar_cipher($shift, $direction, $phrase, $decrypt) {
 function cipher_user_login(){
     $_SESSION[CIPHER_MODULE_SESSION_SPACE]['shift'] = '';
     $_SESSION[CIPHER_MODULE_SESSION_SPACE]['direction'] = '';
-    $_GET['destination'] = 'about';
+    $_GET['destination'] = '';
 }
 
 /**
@@ -317,5 +317,5 @@ function cipher_user_login(){
 function cipher_user_logout(){
     $_SESSION[CIPHER_MODULE_SESSION_SPACE]['shift'] = '';
     $_SESSION[CIPHER_MODULE_SESSION_SPACE]['direction'] = '';
-    $_GET['destination'] = 'about';
+    $_GET['destination'] = '';
 }
