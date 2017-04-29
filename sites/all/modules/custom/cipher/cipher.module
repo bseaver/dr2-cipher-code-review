@@ -22,9 +22,24 @@ function cipher_menu() {
         'type' => MENU_NORMAL_ITEM,
     );
 
+    $items['brute_force'] = array(
+        'title' => 'Crack a Cipher Using Brute Force',
+        'page callback' => 'drupal_get_form',
+        'page arguments' => array('brute_force_form'),
+        'access callback' => TRUE,
+        'type' => MENU_NORMAL_ITEM,
+    );
+
     $items['cipher_results'] = array(
         'title' => 'Caesar Cipher Results',
         'page callback' => 'cipher_success',
+        'access callback' => TRUE,
+        'type' => MENU_CALLBACK,
+    );
+
+    $items['brute_force_results'] = array(
+        'title' => 'Caesar Cipher Results',
+        'page callback' => 'brute_force_results',
         'access callback' => TRUE,
         'type' => MENU_CALLBACK,
     );
@@ -101,6 +116,40 @@ function cipher_form() {
 
     return $form;
 }
+/**
+ * Implements hook_form().
+ */
+function brute_force_form() {
+    $form['direction'] = array(
+        '#title' => 'Direction',
+        '#type' => 'textfield',
+        '#description' => t('Enter "left" or "right" for direction of character shift.'),
+        '#element_validate' => array('validate_direction'),
+        '#default_value' => '',
+        '#required' => TRUE,
+    );
+    if (drupal_session_started()) {
+        $form['direction']['#default_value'] = $_SESSION[CIPHER_MODULE_SESSION_SPACE]['direction'];
+    }
+    if (!$form['direction']['#default_value']) {
+        $form['direction']['#default_value'] = directions()[mt_rand(0, 1)];
+    }
+
+    $form['cipher'] = array(
+        '#title' => 'Cipher',
+        '#type' => 'textfield',
+        '#description' => t('Enter cipher to attack with only letters spaces and punctuation: ' . punctuation()),
+        '#element_validate' => array('validate_phrase'),
+        '#required' => TRUE,
+    );
+
+    $form['submit'] = array(
+        '#type' => 'submit',
+        '#value' => 'Crack It!',
+    );
+
+    return $form;
+}
 
 function validate_shift_number($element) {
     $min = 1;
@@ -137,7 +186,6 @@ function cipher_form_submit($form, &$form_state) {
     $direction = $form_state['values']['direction'];
     $phrase = $form_state['values']['phrase'];
     $decrypt = $form_state['values']['decrypt'];
-    $phrase = $phrase;
     $cipher = generate_caesar_cipher($shift, $direction, $phrase, $decrypt);
     $_SESSION[CIPHER_MODULE_SESSION_SPACE]['shift'] = $shift;
     $_SESSION[CIPHER_MODULE_SESSION_SPACE]['direction'] = $direction;
@@ -145,6 +193,24 @@ function cipher_form_submit($form, &$form_state) {
     $_SESSION[CIPHER_MODULE_SESSION_SPACE]['cipher'] = $cipher;
     $_SESSION[CIPHER_MODULE_SESSION_SPACE]['decrypt'] = $decrypt;
     $form_state['redirect'] = 'cipher_results';
+}
+
+/**
+ * Implements hook_form_submit().
+ */
+function brute_force_form_submit($form, &$form_state) {
+    $direction = $form_state['values']['direction'];
+    $cipher = $form_state['values']['cipher'];
+    $_SESSION[CIPHER_MODULE_SESSION_SPACE]['direction'] = $direction;
+    $_SESSION[CIPHER_MODULE_SESSION_SPACE]['cipher'] = $cipher;
+
+    for ($shift = 1; $shift <= max_shift() ; $shift++) {
+        $_SESSION[CIPHER_MODULE_SESSION_SPACE]['try'][$shift] =
+            $direction . ' ' . $shift;
+        $_SESSION[CIPHER_MODULE_SESSION_SPACE]['result'][$shift] =
+            generate_caesar_cipher($shift, $direction, $cipher, TRUE);
+    }
+    $form_state['redirect'] = 'brute_force_results';
 }
 
 function cipher_success() {
@@ -179,6 +245,33 @@ function cipher_success() {
         </tr>
     </table>
 EOD;
+    return $output;
+}
+
+function brute_force_results() {
+    $cipher = $_SESSION[CIPHER_MODULE_SESSION_SPACE]['cipher'];
+    $output = <<<EOD
+    <table>
+        <tr>
+            <th>Cipher:</th>
+            <td>$cipher</td>
+        </tr>
+EOD;
+
+    for ($shift = 1; $shift <= max_shift() ; $shift ++) {
+        $output .= '<tr><th>' . $_SESSION[CIPHER_MODULE_SESSION_SPACE]['try'][$shift];
+        $output .= '</th><td>' . $_SESSION[CIPHER_MODULE_SESSION_SPACE]['result'][$shift];
+        $output .= '</td></tr>';
+    }
+
+    $output .= <<<EOD
+        <tr>
+            <td><a href="brute_force">Crack Another Cipher</a></td>
+            <td></td>
+        </tr>
+    </table>
+EOD;
+
     return $output;
 }
 
