@@ -24,7 +24,8 @@
   * Iteratively create a cipher custom module in sites/all/modules/custom
   * Since time allows, extend features beyond the `Key Functional Requirements`:
     * Support decryption
-    * Support defaulting of random direction
+    * Support defaulting of random direction if not otherwise specified
+    * Default previously entered shift and direction (but clear default on log in / out)
 
 ### Installation Notes From GitHub:
   * git clone this repo on your desktop

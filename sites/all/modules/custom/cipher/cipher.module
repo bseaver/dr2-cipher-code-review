@@ -63,6 +63,9 @@ function cipher_form() {
         '#element_validate' => array('element_validate_number', 'validate_shift_number'),
         '#required' => TRUE,
     );
+    if (drupal_session_started()) {
+        $form['shift']['#default_value'] = $_SESSION[CIPHER_MODULE_SESSION_SPACE]['shift'];
+    }
 
     $form['direction'] = array(
         '#title' => 'Direction',
@@ -72,6 +75,9 @@ function cipher_form() {
         '#default_value' => '',
         '#required' => TRUE,
     );
+    if (drupal_session_started()) {
+        $form['direction']['#default_value'] = $_SESSION[CIPHER_MODULE_SESSION_SPACE]['direction'];
+    }
     if (!$form['direction']['#default_value']) {
         $form['direction']['#default_value'] = directions()[mt_rand(0, 1)];
     }
@@ -201,4 +207,22 @@ function generate_caesar_cipher($shift, $direction, $phrase, $decrypt) {
     }
 
     return $output;
+}
+
+/**
+ * Implements hook_user_login().
+ */
+function cipher_user_login(){
+    $_SESSION[CIPHER_MODULE_SESSION_SPACE]['shift'] = '';
+    $_SESSION[CIPHER_MODULE_SESSION_SPACE]['direction'] = '';
+    $_GET['destination'] = 'about';
+}
+
+/**
+ * Implements hook_user_logout().
+ */
+function cipher_user_logout(){
+    $_SESSION[CIPHER_MODULE_SESSION_SPACE]['shift'] = '';
+    $_SESSION[CIPHER_MODULE_SESSION_SPACE]['direction'] = '';
+    $_GET['destination'] = 'about';
 }
