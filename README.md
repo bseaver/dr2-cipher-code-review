@@ -13,7 +13,7 @@
 
 ### Key Requirements:
   * 3 validated text input fields:
-    * Field 1 (Shift): allows "1" - "26"
+    * Field 1 (Shift): allows "1" - "25"
     * Field 2 (Direction): allows "left" or "right"
     * Field 3 (Phrase): allows only English letters, spaces and punctuation
   * Submitted phrase is encoded using (Caesar cipher)[https://en.wikipedia.org/wiki/Caesar_cipher] except instead of result being all in UPPERCASE it is in lowercase
@@ -26,6 +26,7 @@
     * Support decryption
     * Support defaulting of random direction if not otherwise specified
     * Default previously entered shift and direction (but clear default on log in / out)
+    * Support "Cracking" of cipher when shift and or direction is unknown
 
 ### Installation Notes From GitHub:
   * git clone this repo on your desktop
